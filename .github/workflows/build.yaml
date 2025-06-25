@@ -1,0 +1,93 @@
+name: CI Build Pipeline
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - dev*
+  push:
+    branches:
+      - dev*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache dependencies and Vite output
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+            .vite
+          key: node-vite-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            node-vite-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the application
+        run: npm run build
+
+  notify-success:
+    needs: build
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email on build success
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Build Succeeded - ${{ github.repository }}
+          to: your@email.com
+          from: GitHub Actions <${{ secrets.EMAIL_USERNAME }}>
+          body: |
+            CI Build succeeded for the repository: ${{ github.repository }}
+
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Workflow: ${{ github.workflow }}
+            Author: ${{ github.actor }}
+
+            View the run:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  notify-failure:
+    needs: build
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email on build failure
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Build Failed - ${{ github.repository }}
+          to: your@email.com
+          from: GitHub Actions <${{ secrets.EMAIL_USERNAME }}>
+          body: |
+            CI Build failed for the repository: ${{ github.repository }}
+
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Workflow: ${{ github.workflow }}
+            Author: ${{ github.actor }}
+
+            View the logs:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
