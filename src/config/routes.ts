@@ -4,6 +4,7 @@ import Home from "@/features/home";
 import AboutUs from "@/features/about-us";
 import ContactUs from "@/features/contact-us";
 import ResultsPage from "@/features/result";
+
 const routes = [
   {
     path: "/",
