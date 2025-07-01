@@ -3,6 +3,7 @@ import Navbar from "@/components/user/layout/navbar";
 import Home from "@/features/home";
 import AboutUs from "@/features/about-us";
 import ContactUs from "@/features/contact-us";
+import ResultsPage from "@/features/result";
 const routes = [
   {
     path: "/",
@@ -19,6 +20,10 @@ const routes = [
       {
         path: "contact",
         children: [{ index: true, Component: ContactUs }],
+      },
+      {
+        path: "schedule/search",
+        children: [{ index: true, Component: ResultsPage }],
       },
     ],
   },
