@@ -41,6 +41,7 @@ export default function DatePicker({
             mode="single"
             selected={selectedDate}
             onSelect={handleDateSelect}
+            fromDate={new Date()}
             className="rounded-md"
             initialFocus
           />
